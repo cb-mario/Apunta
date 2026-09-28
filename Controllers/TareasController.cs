@@ -169,6 +169,29 @@ public class TareasController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // POST: /Tareas/Completar/5
+    // Atajo para marcar una tarea como completada con un solo clic, sin pasar
+    // por el formulario de edición. No tiene página de confirmación (a
+    // diferencia de Delete) porque se puede deshacer editando la tarea.
+    // Aun así es POST y no un enlace: modifica datos, y eso nunca por GET.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Completar(int id)
+    {
+        var tarea = _context.Tareas.Find(id);
+        if (tarea == null)
+        {
+            return NotFound();
+        }
+
+        // Solo cambiamos el estado: EF genera un UPDATE de esa columna
+        tarea.Estado = EstadoTarea.Completada;
+        _context.SaveChanges();
+
+        TempData["Mensaje"] = $"Tarea \"{tarea.Titulo}\" marcada como completada.";
+        return RedirectToAction(nameof(Index));
+    }
+
     // GET: /Tareas/Delete/5
     // No borra nada: solo muestra la página de "¿Seguro que quieres borrarla?".
     public IActionResult Delete(int id)

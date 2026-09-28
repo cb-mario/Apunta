@@ -6,31 +6,60 @@
     ViewData["Title"] = "Detalle de la tarea";
 }
 
-<h1>@Model.Titulo</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-body py-3 d-flex justify-content-between align-items-center gap-2">
+                <h1 class="h4 mb-0">@Model.Titulo</h1>
+                <partial name="_EstadoBadge" model="Model.Estado" />
+            </div>
 
-@* <dl> es una "lista de definiciones": pares de nombre (dt) y valor (dd).
-   Con las clases row/col de Bootstrap se ven en dos columnas. *@
-<dl class="row mt-3">
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Estado)</dt>
-    <dd class="col-sm-9">@Html.DisplayFor(m => m.Estado)</dd>
+            <div class="card-body">
+                @* <dl> es una "lista de definiciones": pares de nombre (dt) y valor (dd).
+                   Con las clases row/col de Bootstrap se ven en dos columnas. *@
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted fw-normal">@Html.DisplayNameFor(m => m.Descripcion)</dt>
+                    @* white-space: pre-line respeta los saltos de línea que se escribieron
+                       en la descripción; sin esto, el HTML lo juntaría todo en una línea *@
+                    <dd class="col-sm-8" style="white-space: pre-line">@(Model.Descripcion ?? "Sin descripción")</dd>
 
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Descripcion)</dt>
-    @* white-space: pre-line respeta los saltos de línea que se escribieron
-       en la descripción; sin esto, el HTML lo juntaría todo en una línea *@
-    <dd class="col-sm-9" style="white-space: pre-line">@(Model.Descripcion ?? "Sin descripción")</dd>
+                    <dt class="col-sm-4 text-muted fw-normal">@Html.DisplayNameFor(m => m.FechaLimite)</dt>
+                    <dd class="col-sm-8 @(Model.EstaVencida ? "text-danger fw-semibold" : "")">
+                        <i class="bi bi-calendar-event me-1"></i>
+                        @(Model.FechaLimite?.ToString("dd/MM/yyyy") ?? "Sin fecha límite")
+                        @if (Model.EstaVencida)
+                        {
+                            <span class="badge text-bg-danger ms-1"><i class="bi bi-exclamation-triangle me-1"></i>Vencida</span>
+                        }
+                    </dd>
 
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.FechaLimite)</dt>
-    <dd class="col-sm-9">
-        @(Model.FechaLimite?.ToString("dd/MM/yyyy") ?? "Sin fecha límite")
-        @if (Model.EstaVencida)
-        {
-            <span class="badge bg-danger ms-1">Vencida</span>
-        }
-    </dd>
+                    <dt class="col-sm-4 text-muted fw-normal">@Html.DisplayNameFor(m => m.FechaCreacion)</dt>
+                    <dd class="col-sm-8 mb-0">
+                        <i class="bi bi-clock me-1"></i>
+                        @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                    </dd>
+                </dl>
+            </div>
 
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.FechaCreacion)</dt>
-    <dd class="col-sm-9">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
-</dl>
-
-<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
-<a asp-action="Index" class="btn btn-outline-secondary">Volver al listado</a>
+            <div class="card-footer bg-body py-3 d-flex flex-wrap gap-2">
+                @if (Model.Estado != EstadoTarea.Completada)
+                {
+                    <form asp-action="Completar" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-lg me-1"></i> Completar
+                        </button>
+                    </form>
+                }
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                    <i class="bi bi-pencil me-1"></i> Editar
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Volver al listado
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-auto">
+                    <i class="bi bi-trash me-1"></i> Borrar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

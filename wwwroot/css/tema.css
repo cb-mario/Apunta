@@ -1,0 +1,70 @@
+/*
+  Tema morado del Gestor de Tareas.
+
+  Bootstrap 5.3 guarda sus colores y su fuente en "variables CSS"
+  (las que empiezan por --bs-). Este archivo no crea estilos nuevos:
+  solo cambia el valor de esas variables, y todos los componentes de
+  Bootstrap (botones, enlaces, badges, bordes...) usan el nuevo color.
+  Se carga DESPUÉS de bootstrap.min.css para que estos valores ganen.
+*/
+
+:root {
+  /* Color principal: bg-primary, text-primary, border-primary... */
+  --bs-primary: #5b2a86;
+  --bs-primary-rgb: 91, 42, 134;
+
+  /* Enlaces */
+  --bs-link-color: #5b2a86;
+  --bs-link-color-rgb: 91, 42, 134;
+  --bs-link-hover-color: #3f1d5e;
+  --bs-link-hover-color-rgb: 63, 29, 94;
+
+  /* Fondo de la página (la clase bg-body-tertiary del <body>) */
+  --bs-tertiary-bg: #f6f4f9;
+  --bs-tertiary-bg-rgb: 246, 244, 249;
+
+  /* Tipografía: Manrope se carga desde Google Fonts en el _Layout */
+  --bs-body-font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Los botones tienen sus propias variables (--bs-btn-...), así que hay
+   que decirles también el morado para cada estado: normal, hover y pulsado */
+.btn-primary {
+  --bs-btn-bg: #5b2a86;
+  --bs-btn-border-color: #5b2a86;
+  --bs-btn-hover-bg: #4a2170;
+  --bs-btn-hover-border-color: #4a2170;
+  --bs-btn-active-bg: #3f1d5e;
+  --bs-btn-active-border-color: #3f1d5e;
+  --bs-btn-focus-shadow-rgb: 91, 42, 134;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: #5b2a86;
+  --bs-btn-border-color: #5b2a86;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #5b2a86;
+  --bs-btn-hover-border-color: #5b2a86;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #4a2170;
+  --bs-btn-active-border-color: #4a2170;
+  --bs-btn-focus-shadow-rgb: 91, 42, 134;
+}
+
+/* El borde y el halo de los campos al hacer clic en ellos venían en azul */
+.form-control:focus,
+.form-select:focus {
+  border-color: #a98bc8;
+  box-shadow: 0 0 0 0.25rem rgba(91, 42, 134, 0.2);
+}
+
+/* Único color que no existe en Bootstrap: el morado muy oscuro de la barra */
+.bg-morado-oscuro {
+  background-color: #2a1740;
+}
+
+/* Títulos un poco más gruesos y juntos, para que se vean más cuidados */
+h1, .h1, .h3, .h4, .h5 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}

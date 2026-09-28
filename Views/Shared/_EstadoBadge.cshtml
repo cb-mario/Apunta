@@ -1,0 +1,21 @@
+@* Vista parcial: un trozo de HTML reutilizable que se incluye dentro de
+   otras vistas con <partial name="_EstadoBadge" model="..." />.
+   El "_" delante del nombre es la convención para indicar que no es una
+   página completa. Así el color de cada estado está en un solo sitio y
+   no repetido en Index, Details y Delete. *@
+@model EstadoTarea
+
+@{
+    // Un color de Bootstrap y un icono distintos para cada estado.
+    // Es un "switch expression": según el valor, devuelve un resultado u otro.
+    // (color, icono) es una "tupla": dos valores agrupados sin crear una clase.
+    var (color, icono) = Model switch
+    {
+        EstadoTarea.Pendiente => ("text-bg-secondary", "bi-circle"),
+        EstadoTarea.EnProgreso => ("text-bg-warning", "bi-hourglass-split"),
+        _ => ("text-bg-success", "bi-check-circle") // "_" = cualquier otro caso (Completada)
+    };
+}
+
+@* DisplayFor usa el [Display] del enum: "En progreso" y no "EnProgreso" *@
+<span class="badge @color"><i class="bi @icono me-1"></i>@Html.DisplayFor(m => m)</span>

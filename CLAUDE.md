@@ -15,6 +15,10 @@ sencillez sobre la elegancia técnica o los patrones avanzados.
 - **Backend:** ASP.NET Core MVC, C#, .NET 10
 - **Vistas:** Razor Views (.cshtml) + Bootstrap 5 vía CDN (sin CSS custom
   complejo, sin frameworks de frontend)
+- **Tema visual:** morado oscuro (`#5B2A86` principal, `#2A1740` navbar) y
+  fuente Manrope (Google Fonts). Vive en `wwwroot/css/tema.css`, que solo
+  sobrescribe variables CSS de Bootstrap (`--bs-primary`, `--bs-btn-*`...).
+  Para colores nuevos, usar las clases de Bootstrap, no CSS propio.
 - **ORM:** Entity Framework Core
 - **Base de datos:** MySQL (en local es MariaDB 10.4, la que trae XAMPP),
   mediante el paquete `Pomelo.EntityFrameworkCore.MySql`
