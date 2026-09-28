@@ -36,4 +36,14 @@ public class Tarea
     // objeto. El usuario nunca la escribe en el formulario.
     [Display(Name = "Fecha de creación")]
     public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+    // Propiedad calculada: no se guarda, se calcula cada vez que se lee a
+    // partir de otras propiedades. Como solo tiene "get" (no tiene "set"),
+    // EF Core no crea ninguna columna para ella en la base de datos.
+    // Está en el modelo y no en la vista porque es una regla del negocio
+    // ("qué significa estar vencida"), y así la puede usar cualquier vista.
+    public bool EstaVencida =>
+        FechaLimite != null
+        && FechaLimite.Value.Date < DateTime.Today
+        && Estado != EstadoTarea.Completada;
 }

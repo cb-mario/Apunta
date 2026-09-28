@@ -20,7 +20,13 @@
     <dd class="col-sm-9" style="white-space: pre-line">@(Model.Descripcion ?? "Sin descripción")</dd>
 
     <dt class="col-sm-3">@Html.DisplayNameFor(m => m.FechaLimite)</dt>
-    <dd class="col-sm-9">@(Model.FechaLimite?.ToString("dd/MM/yyyy") ?? "Sin fecha límite")</dd>
+    <dd class="col-sm-9">
+        @(Model.FechaLimite?.ToString("dd/MM/yyyy") ?? "Sin fecha límite")
+        @if (Model.EstaVencida)
+        {
+            <span class="badge bg-danger ms-1">Vencida</span>
+        }
+    </dd>
 
     <dt class="col-sm-3">@Html.DisplayNameFor(m => m.FechaCreacion)</dt>
     <dd class="col-sm-9">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>

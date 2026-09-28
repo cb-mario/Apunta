@@ -72,7 +72,13 @@ else
                         <span class="badge @colorEstado">@Html.DisplayFor(m => tarea.Estado)</span>
                     </td>
                     @* ?. evita un error si no hay fecha, y ?? pone un guion en ese caso *@
-                    <td>@(tarea.FechaLimite?.ToString("dd/MM/yyyy") ?? "—")</td>
+                    <td class="@(tarea.EstaVencida ? "text-danger fw-semibold" : "")">
+                        @(tarea.FechaLimite?.ToString("dd/MM/yyyy") ?? "—")
+                        @if (tarea.EstaVencida)
+                        {
+                            <span class="badge bg-danger ms-1">Vencida</span>
+                        }
+                    </td>
                     <td class="text-end">
                         @* asp-route-id añade el Id al final de la URL: /Tareas/Details/5 *@
                         <a asp-action="Details" asp-route-id="@tarea.Id" class="btn btn-sm btn-outline-primary">Ver</a>
