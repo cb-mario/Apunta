@@ -16,7 +16,12 @@ sencillez sobre la elegancia técnica o los patrones avanzados.
 - **Vistas:** Razor Views (.cshtml) + Bootstrap 5 vía CDN (sin CSS custom
   complejo, sin frameworks de frontend)
 - **ORM:** Entity Framework Core
-- **Base de datos:** MySQL, mediante el paquete `Pomelo.EntityFrameworkCore.MySql`
+- **Base de datos:** MySQL (en local es MariaDB 10.4, la que trae XAMPP),
+  mediante el paquete `Pomelo.EntityFrameworkCore.MySql`
+- **Versiones:** la app es .NET 10, pero EF Core va en la **9.x** porque
+  Pomelo aún no tiene versión para EF Core 10 (última estable: 9.0.0).
+  `Microsoft.EntityFrameworkCore.Design` y la herramienta `dotnet-ef`
+  también deben ser 9.x para que coincidan.
 - **Gestión de la BD:** phpMyAdmin en local (no hay Docker en este proyecto)
 
 ## Reglas de trabajo
