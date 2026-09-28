@@ -1,0 +1,31 @@
+@* Página de confirmación: muestra la tarea y solo se borra si se pulsa el botón *@
+@model Tarea
+
+@{
+    ViewData["Title"] = "Borrar tarea";
+}
+
+<h1>Borrar tarea</h1>
+
+<div class="alert alert-danger">
+    ¿Seguro que quieres borrar esta tarea? Esta acción no se puede deshacer.
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Titulo)</dt>
+    <dd class="col-sm-9">@Model.Titulo</dd>
+
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Estado)</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(m => m.Estado)</dd>
+
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.FechaLimite)</dt>
+    <dd class="col-sm-9">@(Model.FechaLimite?.ToString("dd/MM/yyyy") ?? "Sin fecha límite")</dd>
+</dl>
+
+@* El borrado va en un formulario POST y no en un enlace: los enlaces hacen
+   GET, y un GET nunca debe modificar datos. Este POST llega al
+   DeleteConfirmed del controlador gracias a su [ActionName("Delete")]. *@
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    <button type="submit" class="btn btn-danger">Sí, borrar</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+</form>
