@@ -1,121 +1,95 @@
-# 📋 Gestor de Tareas
+# Gestor de Tareas
 
-Aplicación web sencilla de gestión de tareas (CRUD) hecha con **ASP.NET Core MVC (C#)** y **MySQL**, como proyecto de portfolio.
+Una app web para organizar tareas: crearlas, editarlas, marcarlas como hechas y ver de un vistazo qué tienes pendiente. La he hecho con ASP.NET Core MVC y MySQL mientras estudio 2º de DAW, sobre todo para aprender bien cómo funciona el backend en .NET.
 
-Proyecto pensado para practicar y demostrar el patrón **Modelo-Vista-Controlador**, el uso de **Entity Framework Core** como ORM, y operaciones CRUD completas contra una base de datos relacional.
+![Listado de tareas](docs/capturas/listado.png)
 
-## ✨ Funcionalidades
+## Qué se puede hacer
 
-- Listar todas las tareas, con filtro por estado (Pendiente / En progreso / Completada)
-- Ver el detalle de una tarea
-- Crear una nueva tarea
-- Editar una tarea existente
-- Borrar una tarea (con confirmación previa)
+- Crear, ver, editar y borrar tareas (el borrado pide confirmación)
+- Marcar una tarea como completada con un solo clic
+- Filtrar por estado: pendiente, en progreso o completada
+- Ver un resumen con cuántas tareas hay de cada tipo
+- Las tareas cuya fecha límite ya ha pasado salen marcadas como vencidas
+- Se ve bien también en el móvil
 
-## 🛠️ Tecnologías
+| Detalle de una tarea | Nueva tarea |
+|---|---|
+| ![Detalle](docs/capturas/detalle.png) | ![Formulario](docs/capturas/nueva-tarea.png) |
 
-| Capa           | Tecnología                                      |
-|----------------|--------------------------------------------------|
-| Backend        | C# · ASP.NET Core MVC (.NET 10)                   |
-| Vistas         | Razor Views (.cshtml) · Bootstrap 5              |
-| ORM            | Entity Framework Core                            |
-| Base de datos  | MySQL (gestionada con phpMyAdmin en local)       |
-| Paquete MySQL  | Pomelo.EntityFrameworkCore.MySql                 |
+<img src="docs/capturas/movil.png" alt="Vista en móvil" width="280">
 
-## 📂 Estructura del proyecto
+## Con qué está hecho
 
-```
-GestorTareas/
-├── Controllers/
-│   └── TareasController.cs
-├── Models/
-│   ├── Tarea.cs
-│   └── EstadoTarea.cs
-├── Data/
-│   └── ApplicationDbContext.cs
-├── Views/
-│   ├── Tareas/
-│   │   ├── Index.cshtml
-│   │   ├── Details.cshtml
-│   │   ├── Create.cshtml
-│   │   ├── Edit.cshtml
-│   │   └── Delete.cshtml
-│   └── Shared/
-│       └── _Layout.cshtml
-├── Migrations/
-├── appsettings.json
-└── Program.cs
-```
+- **C# y ASP.NET Core MVC** (.NET 10)
+- **Entity Framework Core** para trabajar con la base de datos, con Pomelo como proveedor de MySQL
+- **MySQL / MariaDB** (en local uso la de XAMPP)
+- **Razor + Bootstrap 5** para las vistas, sin JavaScript propio
 
-## 🚀 Puesta en marcha
+## Lo que más he aprendido haciéndolo
 
-### Requisitos previos
+La parte visual es sencilla a propósito. Donde he puesto el foco es en el backend:
 
-- [.NET SDK 10.0](https://dotnet.microsoft.com/download) o superior
-- MySQL Server (por ejemplo, vía XAMPP/Laragon) y phpMyAdmin
-- (Opcional) Visual Studio, Rider o VS Code con la extensión de C#
+- **MVC de verdad.** El controlador (`TareasController`) recibe la petición, habla con la base de datos y decide qué vista devolver. Las vistas solo pintan.
+- **Base de datos con Code First.** No he creado ninguna tabla a mano. La tabla sale de la clase `Tarea` y de sus atributos (`[Required]`, `[StringLength]`...) mediante migraciones de EF Core, así que la estructura de la base de datos también está en el repositorio.
+- **Consultas con LINQ.** El filtro por estado se va construyendo y solo se ejecuta al final, y el resumen de arriba sale de una única consulta con `GroupBy` en lugar de hacer una por estado.
+- **La lógica en el modelo.** Saber si una tarea está vencida es una propiedad de la propia clase `Tarea`, no algo calculado en la vista.
+- **Algo de seguridad básica.** Los formularios llevan token antifalsificación, solo se aceptan los campos que toca (para que no se pueda colar, por ejemplo, la fecha de creación) y nada que modifique datos se hace por GET.
+- **La contraseña de la base de datos no está en el repo.** Va en un `appsettings.Development.json` que está en el `.gitignore`.
 
-### 1. Clonar el repositorio
+## Cómo arrancarlo en local
+
+Necesitas el [SDK de .NET 10](https://dotnet.microsoft.com/download) y un MySQL o MariaDB. Yo uso XAMPP con phpMyAdmin.
+
+**1. Clona el repo**
 
 ```bash
 git clone https://github.com/<tu-usuario>/gestor-tareas.git
 cd gestor-tareas
 ```
 
-### 2. Configurar la base de datos
+**2. Crea la base de datos**
 
-Crea una base de datos vacía en phpMyAdmin, por ejemplo `gestor_tareas`.
+En phpMyAdmin, crea una base de datos vacía llamada `gestor_tareas` con cotejamiento `utf8mb4_general_ci`.
 
-Edita `appsettings.json` (o mejor, crea un `appsettings.Development.json`
-que no se sube a git) con tu cadena de conexión:
+**3. Pon tu conexión**
+
+Crea un archivo `appsettings.Development.json` en la raíz del proyecto con tus datos. En XAMPP, `root` viene sin contraseña:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Port=3306;Database=gestor_tareas;User=root;Password=TU_PASSWORD;"
+    "DefaultConnection": "Server=localhost;Port=3306;Database=gestor_tareas;User=root;Password=;"
   }
 }
 ```
 
-### 3. Restaurar dependencias y aplicar migraciones
+**4. Crea las tablas**
+
+El proyecto usa EF Core 9, porque Pomelo todavía no tiene versión para EF Core 10, así que la herramienta de migraciones tiene que ser la 9:
 
 ```bash
-dotnet restore
+dotnet tool install --global dotnet-ef --version 9.0.20
 dotnet ef database update
 ```
 
-### 4. Ejecutar el proyecto
+**5. Arráncalo**
 
 ```bash
 dotnet run
 ```
 
-La aplicación estará disponible en `https://localhost:5001` (o el puerto que indique la consola).
+Y abre la dirección que aparece en la consola (por defecto `http://localhost:5286`).
 
-## 🖼️ Capturas
+## Cosas que me gustaría añadir
 
-_(Pendiente: añadir capturas del listado, formulario de creación y edición)_
+- Usuarios con login, para que cada uno vea solo sus tareas
+- Un calendario donde ver las tareas según su fecha límite
+- Tests unitarios con xUnit
+- Paginación en el listado
+- Publicarla online
 
-## 📌 Motivación del proyecto
+## Autor
 
-Este proyecto forma parte de mi portfolio como estudiante de Desarrollo de
-Aplicaciones Web (DAW). Su objetivo es demostrar de forma clara y sin
-complejidad innecesaria:
-
-- Cómo se estructura una aplicación siguiendo el patrón MVC
-- Cómo se modela una entidad y se persiste con Entity Framework Core
-- Cómo se implementa un CRUD completo con validaciones básicas
-- Buenas prácticas simples: separación de responsabilidades, nombres
-  descriptivos, y no subir credenciales al repositorio
-
-## 🔜 Posibles mejoras (v2)
-
-- [ ] Autenticación de usuarios (login/registro)
-- [ ] Tests unitarios con xUnit
-- [ ] Paginación en el listado
-- [ ] Despliegue en un hosting gratuito (Railway, Render...)
-
-## 👤 Autor
-
-**Mario Cerdá** — Desarrollador Full Stack
+**Mario Cerdá**, estudiante de DAW
 [LinkedIn](https://linkedin.com) · cerbano.m@gmail.com
