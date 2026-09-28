@@ -3,37 +3,22 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    @* Cada vista pone su propio título en ViewData["Title"] *@
     <title>@ViewData["Title"] - Gestor de Tareas</title>
-    @* Bootstrap desde un CDN (un servidor externo) en vez de la copia local
-       que traía la plantilla en wwwroot/lib: es una sola línea y el repo
-       pesa menos. La pega es que sin internet la página se vería sin estilos. *@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
-    @* Bootstrap Icons: iconos que se usan como una clase, <i class="bi bi-pencil"></i> *@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
-    @* Fuente Manrope desde Google Fonts (pesos 400 normal, 600 y 700 negrita) *@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" />
-    @* Nuestro tema va el último para que sus valores sustituyan a los de Bootstrap.
-       asp-append-version añade ?v=... a la URL para que el navegador no use una
-       versión vieja guardada en caché cuando cambiemos el archivo. *@
+    @* Después de Bootstrap, para que sus variables de color queden sobrescritas *@
     <link rel="stylesheet" href="~/css/tema.css" asp-append-version="true" />
 </head>
-@* d-flex + flex-column + min-vh-100 hacen que el body ocupe como mínimo toda
-   la pantalla, y mt-auto en el footer lo empuja abajo del todo aunque haya
-   poco contenido. Así no hace falta CSS propio. *@
 <body class="d-flex flex-column min-vh-100 bg-body-tertiary">
     <header>
         <nav class="navbar navbar-expand-sm navbar-dark bg-morado-oscuro shadow-sm mb-4">
             <div class="container">
-                @* asp-controller y asp-action generan la URL (/Tareas) a partir
-                   de las rutas de Program.cs, así no hay que escribirla a mano *@
                 <a class="navbar-brand fw-semibold" asp-controller="Tareas" asp-action="Index">
                     <i class="bi bi-check2-square me-1"></i> Gestor de Tareas
                 </a>
-                @* Botón de "hamburguesa" que aparece en pantallas pequeñas.
-                   El desplegable lo gestiona el JavaScript de Bootstrap, no uno propio. *@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                         aria-expanded="false" aria-label="Mostrar menú">
                     <span class="navbar-toggler-icon"></span>
@@ -52,11 +37,6 @@
     </header>
 
     <main role="main" class="container pb-4">
-        @* Mensaje de confirmación que dejan Create, Edit y Delete en TempData.
-           Está en el layout para que salga en cualquier página a la que se
-           redirija. Al leerlo aquí, TempData lo borra: si recargas la
-           página, el mensaje ya no vuelve a aparecer.
-           El botón de cerrar (data-bs-dismiss) lo gestiona Bootstrap. *@
         @if (TempData["Mensaje"] != null)
         {
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -65,8 +45,6 @@
             </div>
         }
 
-        @* Aquí se "incrusta" el contenido de la vista que se esté mostrando
-           (Index, Create...). El resto de este archivo es común a todas. *@
         @RenderBody()
     </main>
 
@@ -75,9 +53,7 @@
             Gestor de Tareas · ASP.NET Core MVC + Entity Framework Core + MySQL
         </div>
     </footer>
-    @* No cargamos jQuery: solo hacía falta para validar los formularios en el
-       navegador, y aquí la validación se hace únicamente en el servidor
-       (ModelState.IsValid en el controlador). *@
+    @* Sin jQuery: la validación de formularios se hace solo en el servidor *@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

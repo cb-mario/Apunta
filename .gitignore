@@ -482,3 +482,7 @@ $RECYCLE.BIN/
 *.swp
 appsettings.Development.json
 tempCodeRunnerFile.*
+
+# Archivos de configuración de asistentes de IA (solo en local)
+CLAUDE.md
+.claude/

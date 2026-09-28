@@ -1,6 +1,3 @@
-@* El formulario trabaja sobre una Tarea: en el GET llega vacía (View()) y,
-   si hay errores de validación, llega con lo que había escrito el usuario
-   (View(tarea)) para no obligarle a escribirlo todo otra vez. *@
 @model Tarea
 
 @{
@@ -13,21 +10,12 @@
             <div class="card-body p-4">
                 <h1 class="h4 mb-4"><i class="bi bi-plus-circle me-1"></i> Nueva tarea</h1>
 
-                @* Por defecto el formulario se envía a la misma URL (/Tareas/Create)
-                   por POST, que es el Create con [HttpPost] del controlador.
-                   El tag helper de <form> añade además un campo oculto con el token
-                   antifalsificación que comprueba [ValidateAntiForgeryToken]. *@
                 <form asp-action="Create" method="post">
-                    @* Muestra aquí los errores que no son de un campo concreto *@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                     <div class="mb-3">
-                        @* asp-for conecta la etiqueta y el campo con la propiedad del modelo:
-                           pone name="Titulo" (para que el model binding lo encuentre),
-                           el texto de [Display] en la label y el valor actual en el input *@
                         <label asp-for="Titulo" class="form-label"></label>
                         <input asp-for="Titulo" class="form-control" />
-                        @* Aquí aparece el mensaje de error de ese campo, p. ej. "El título es obligatorio." *@
                         <span asp-validation-for="Titulo" class="text-danger"></span>
                     </div>
 
@@ -38,15 +26,11 @@
 
                     <div class="mb-3">
                         <label asp-for="Estado" class="form-label"></label>
-                        @* Mismo GetEnumSelectList que en el filtro de Index, pero aquí
-                           asp-for se encarga solo de marcar la opción seleccionada *@
                         <select asp-for="Estado" asp-items="Html.GetEnumSelectList<EstadoTarea>()" class="form-select"></select>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="FechaLimite" class="form-label"></label>
-                        @* Por el [DataType(DataType.Date)] del modelo, asp-for genera
-                           type="date" y el navegador muestra un calendario *@
                         <input asp-for="FechaLimite" class="form-control" />
                     </div>
 

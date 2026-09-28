@@ -1,12 +1,9 @@
-@* Indica qué tipo de dato recibe la vista: el ViewModel que devuelve el
-   controlador con View(viewModel). Dentro de la vista se usa como "Model". *@
 @model TareasIndexViewModel
 
 @{
     ViewData["Title"] = "Tareas";
 
-    // El filtro elegido, pasado a texto ("0", "1", "2") porque así vienen
-    // los valores en el desplegable
+    // Las opciones del desplegable tienen como valor el número del enum en texto
     var estadoSeleccionado = ((int?)Model.EstadoSeleccionado)?.ToString();
 }
 
@@ -17,10 +14,6 @@
     </a>
 </div>
 
-@* Resumen por estado. Cada tarjeta es un enlace que filtra por ese estado:
-   asp-route-estado añade ?estado=... a la URL, igual que el desplegable.
-   La tarjeta del filtro activo se resalta con un borde de su color: el
-   operador ternario (condición ? A : B) elige la clase según el filtro. *@
 <div class="row g-3 mb-4">
     <div class="col-6 col-lg-3">
         <a asp-action="Index" class="card shadow-sm text-decoration-none h-100 @(Model.EstadoSeleccionado == null ? "border border-2 border-primary" : "border-0")">
@@ -68,18 +61,11 @@
     </div>
 </div>
 
-@* El filtro y la tabla van dentro de la misma tarjeta (card) *@
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-body py-3">
-        @* Formulario de filtro. Usa method="get" porque solo sirve para consultar,
-           no modifica nada: al enviarlo, el navegador va a /Tareas?estado=2 y el
-           controlador recibe ese valor en su parámetro "estado". *@
         <form asp-action="Index" method="get" class="d-flex gap-2">
             <select name="estado" class="form-select w-auto" aria-label="Filtrar por estado">
                 <option value="">Todos los estados</option>
-                @* GetEnumSelectList crea una opción por cada valor del enum,
-                   usando el texto de [Display] ("En progreso") si lo tiene.
-                   selected="true/false": Razor solo escribe el atributo si es true. *@
                 @foreach (var opcion in Html.GetEnumSelectList<EstadoTarea>())
                 {
                     <option value="@opcion.Value" selected="@(opcion.Value == estadoSeleccionado)">@opcion.Text</option>
@@ -100,18 +86,13 @@
     }
     else
     {
-        @* table-responsive añade scroll horizontal en móviles si la tabla no cabe *@
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        @* DisplayNameFor lee el [Display(Name = "...")] del modelo, así
-                           la cabecera sale "Título" con tilde sin escribirla dos veces *@
                         <th class="ps-3">@Html.DisplayNameFor(m => m.Tareas[0].Titulo)</th>
                         <th>@Html.DisplayNameFor(m => m.Tareas[0].Estado)</th>
-                        @* d-none oculta la columna y d-md-table-cell la vuelve a mostrar a
-                           partir de pantallas medianas (tablets y ordenadores): en el
-                           móvil la tabla cabe sin deslizar, y la fecha se ve en el detalle *@
+                        @* En móvil se oculta la fecha para que la tabla quepa *@
                         <th class="d-none d-md-table-cell">@Html.DisplayNameFor(m => m.Tareas[0].FechaLimite)</th>
                         <th class="text-end pe-3">Acciones</th>
                     </tr>
@@ -121,21 +102,17 @@
                     {
                         <tr>
                             <td class="ps-3">
-                                @* El título es también un enlace al detalle *@
                                 <a asp-action="Details" asp-route-id="@tarea.Id" class="fw-semibold text-decoration-none">@tarea.Titulo</a>
                                 <div class="text-muted small">Creada el @tarea.FechaCreacion.ToString("dd/MM/yyyy")</div>
-                                @* En el móvil la columna de fecha está oculta, así que el aviso de
-                                   vencida se muestra aquí. d-md-none: visible solo en pantallas pequeñas *@
+                                @* Como en móvil no hay columna de fecha, el aviso de vencida va aquí *@
                                 @if (tarea.EstaVencida)
                                 {
                                     <span class="badge text-bg-danger d-md-none"><i class="bi bi-exclamation-triangle me-1"></i>Vencida</span>
                                 }
                             </td>
                             <td>
-                                @* Vista parcial con el badge de color del estado (Views/Shared/_EstadoBadge.cshtml) *@
                                 <partial name="_EstadoBadge" model="tarea.Estado" />
                             </td>
-                            @* ?. evita un error si no hay fecha, y ?? pone un guion en ese caso *@
                             <td class="d-none d-md-table-cell @(tarea.EstaVencida ? "text-danger fw-semibold" : "")">
                                 @(tarea.FechaLimite?.ToString("dd/MM/yyyy") ?? "—")
                                 @if (tarea.EstaVencida)
@@ -144,13 +121,7 @@
                                 }
                             </td>
                             <td class="text-end pe-3">
-                                @* Botones solo con icono. "title" muestra un texto al pasar el
-                                   ratón, y visually-hidden deja el texto para lectores de
-                                   pantalla (accesibilidad) aunque no se vea. *@
                                 <div class="d-inline-flex gap-1">
-                                    @* El botón de completar es un formulario POST (no un enlace)
-                                       porque modifica datos. Solo sale si la tarea no está ya
-                                       completada. *@
                                     @if (tarea.Estado != EstadoTarea.Completada)
                                     {
                                         <form asp-action="Completar" asp-route-id="@tarea.Id" method="post">

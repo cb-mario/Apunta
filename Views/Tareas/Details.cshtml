@@ -1,5 +1,3 @@
-@* Aquí el modelo es UNA tarea (no una lista), la que devuelve
-   el controlador con View(tarea) *@
 @model Tarea
 
 @{
@@ -15,12 +13,9 @@
             </div>
 
             <div class="card-body">
-                @* <dl> es una "lista de definiciones": pares de nombre (dt) y valor (dd).
-                   Con las clases row/col de Bootstrap se ven en dos columnas. *@
                 <dl class="row mb-0">
                     <dt class="col-sm-4 text-muted fw-normal">@Html.DisplayNameFor(m => m.Descripcion)</dt>
-                    @* white-space: pre-line respeta los saltos de línea que se escribieron
-                       en la descripción; sin esto, el HTML lo juntaría todo en una línea *@
+                    @* pre-line para respetar los saltos de línea de la descripción *@
                     <dd class="col-sm-8" style="white-space: pre-line">@(Model.Descripcion ?? "Sin descripción")</dd>
 
                     <dt class="col-sm-4 text-muted fw-normal">@Html.DisplayNameFor(m => m.FechaLimite)</dt>

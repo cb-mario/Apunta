@@ -1,4 +1,3 @@
-@* Página de confirmación: muestra la tarea y solo se borra si se pulsa el botón *@
 @model Tarea
 
 @{
@@ -28,9 +27,7 @@
             </div>
 
             <div class="card-footer bg-body py-3">
-                @* El borrado va en un formulario POST y no en un enlace: los enlaces hacen
-                   GET, y un GET nunca debe modificar datos. Este POST llega al
-                   DeleteConfirmed del controlador gracias a su [ActionName("Delete")]. *@
+                @* Formulario POST y no un enlace: un GET nunca debería borrar datos *@
                 <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
                     <button type="submit" class="btn btn-danger">
                         <i class="bi bi-trash me-1"></i> Sí, borrar

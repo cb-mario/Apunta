@@ -4,32 +4,22 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GestorTareas.Controllers;
 
-// Todas las URLs que empiezan por /Tareas llegan a este controlador.
-// Cada método público es una "acción": /Tareas/Create llama a Create(), etc.
-//
-// Uso métodos síncronos (ToList, Find, SaveChanges) porque se leen más fácil.
-// En una app real se usarían sus versiones async (ToListAsync, FindAsync,
-// SaveChangesAsync) para que el servidor no se quede bloqueado esperando a
-// la base de datos y pueda atender a otros usuarios mientras tanto.
+// Uso los métodos síncronos de EF por simplicidad. Con muchos usuarios
+// convendría pasar a las versiones async (ToListAsync, SaveChangesAsync...).
 public class TareasController : Controller
 {
     private readonly ApplicationDbContext _context;
 
-    // No creamos el contexto con "new": ASP.NET nos lo pasa ya configurado
-    // gracias al AddDbContext de Program.cs (inyección de dependencias).
     public TareasController(ApplicationDbContext context)
     {
         _context = context;
     }
 
-    // GET: /Tareas  o  /Tareas?estado=Completada
-    // El parámetro "estado" llega del desplegable de filtro. Es opcional (?):
-    // si no viene, se muestran todas las tareas.
+    // GET: /Tareas?estado=Completada
     public IActionResult Index(EstadoTarea? estado)
     {
-        // Mientras no se llame a ToList(), la consulta no se ejecuta: solo se
-        // va construyendo. Así podemos añadir el Where solo si hace falta y
-        // EF genera un único SELECT con todo al final.
+        // La consulta no se ejecuta hasta el ToList(), así el filtro
+        // se añade solo si hace falta y sale un único SELECT
         var tareas = _context.Tareas.AsQueryable();
 
         if (estado != null)
@@ -37,14 +27,7 @@ public class TareasController : Controller
             tareas = tareas.Where(t => t.Estado == estado);
         }
 
-        // Cuántas tareas hay de cada estado, con una sola consulta:
-        //   GroupBy  → agrupa las tareas por estado (un grupo por estado)
-        //   Select   → de cada grupo nos quedamos con su estado (g.Key) y
-        //              cuántas tareas tiene (g.Count())
-        //   ToDictionary → lo guarda como diccionario estado → cantidad
-        // EF lo traduce a: SELECT Estado, COUNT(*) FROM Tareas GROUP BY Estado
-        // (la otra opción sería hacer tres Count(), uno por estado: más fácil
-        // de leer, pero son tres consultas a la base de datos en vez de una)
+        // Un solo GROUP BY en vez de tres Count() separados
         var contadores = _context.Tareas
             .GroupBy(t => t.Estado)
             .Select(g => new { Estado = g.Key, Cantidad = g.Count() })
@@ -52,13 +35,9 @@ public class TareasController : Controller
 
         var viewModel = new TareasIndexViewModel
         {
-            // Las más recientes primero
             Tareas = tareas.OrderByDescending(t => t.FechaCreacion).ToList(),
-            // Guardamos el filtro para que el desplegable lo siga mostrando
-            // seleccionado después de filtrar
             EstadoSeleccionado = estado,
-            // GetValueOrDefault devuelve 0 si un estado no tiene ninguna tarea
-            // (en ese caso no aparece en el diccionario)
+            // Si un estado no tiene tareas no aparece en el diccionario, de ahí el OrDefault
             TotalPendientes = contadores.GetValueOrDefault(EstadoTarea.Pendiente),
             TotalEnProgreso = contadores.GetValueOrDefault(EstadoTarea.EnProgreso),
             TotalCompletadas = contadores.GetValueOrDefault(EstadoTarea.Completada)
@@ -70,7 +49,6 @@ public class TareasController : Controller
     // GET: /Tareas/Details/5
     public IActionResult Details(int id)
     {
-        // Find busca por clave primaria y devuelve null si no existe.
         var tarea = _context.Tareas.Find(id);
         if (tarea == null)
         {
@@ -81,49 +59,33 @@ public class TareasController : Controller
     }
 
     // GET: /Tareas/Create
-    // Solo muestra el formulario vacío.
     public IActionResult Create()
     {
         return View();
     }
 
     // POST: /Tareas/Create
-    // Recibe los datos cuando se envía el formulario.
-    // [Bind] indica qué campos se aceptan del formulario. Id y FechaCreacion
-    // no están en la lista para que nadie pueda colarlos modificando el HTML:
-    // el Id lo pone MySQL y la fecha se rellena sola (ver Tarea.cs).
-    // [ValidateAntiForgeryToken] comprueba que el formulario viene de nuestra
-    // propia web y no de otra página que intente enviarlo en tu nombre.
+    // Id y FechaCreacion no están en el Bind para que no se puedan colar desde el formulario
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Create([Bind("Titulo,Descripcion,Estado,FechaLimite")] Tarea tarea)
     {
-        // ModelState.IsValid comprueba los atributos del modelo ([Required],
-        // [StringLength]...). Si algo falla, se vuelve a mostrar el formulario
-        // con los datos que había escrito el usuario y los mensajes de error.
         if (!ModelState.IsValid)
         {
             return View(tarea);
         }
 
         _context.Tareas.Add(tarea);
-        _context.SaveChanges(); // aquí es cuando se ejecuta el INSERT
+        _context.SaveChanges();
 
-        // TempData guarda un dato que sobrevive a UNA redirección: se escribe
-        // aquí, el navegador va a /Tareas, el layout lo muestra y se borra
-        // solo. Con ViewBag no funcionaría, porque ViewBag se pierde al
-        // redirigir (la redirección es una petición nueva).
-        // El $ delante de las comillas permite meter variables entre llaves.
+        // TempData aguanta la redirección, ViewBag no
         TempData["Mensaje"] = $"Tarea \"{tarea.Titulo}\" creada correctamente.";
 
-        // Redirigimos en vez de devolver una vista para que, si el usuario
-        // recarga la página, el navegador no reenvíe el formulario y cree
-        // la tarea dos veces.
+        // Redirijo (PRG) para que al recargar no se cree la tarea otra vez
         return RedirectToAction(nameof(Index));
     }
 
     // GET: /Tareas/Edit/5
-    // Muestra el formulario relleno con los datos actuales de la tarea.
     public IActionResult Edit(int id)
     {
         var tarea = _context.Tareas.Find(id);
@@ -142,15 +104,13 @@ public class TareasController : Controller
     {
         if (!ModelState.IsValid)
         {
-            // El formulario no envía el Id, así que lo ponemos para que la
-            // vista sepa a qué tarea pertenece al volver a mostrarse.
+            // El Id no viene en el formulario y la vista lo necesita para la URL del form
             tareaEditada.Id = id;
             return View(tareaEditada);
         }
 
-        // Cargamos la tarea original de la base de datos y solo copiamos los
-        // campos editables. Así FechaCreacion no se toca: si guardáramos
-        // directamente "tareaEditada", se sobrescribiría con la fecha de hoy.
+        // Cargo la original y copio solo los campos editables. Si guardara
+        // tareaEditada tal cual, FechaCreacion se machacaría con la de hoy.
         var tarea = _context.Tareas.Find(id);
         if (tarea == null)
         {
@@ -162,7 +122,6 @@ public class TareasController : Controller
         tarea.Estado = tareaEditada.Estado;
         tarea.FechaLimite = tareaEditada.FechaLimite;
 
-        // EF detecta solo qué propiedades han cambiado y genera el UPDATE.
         _context.SaveChanges();
 
         TempData["Mensaje"] = $"Tarea \"{tarea.Titulo}\" actualizada correctamente.";
@@ -170,10 +129,7 @@ public class TareasController : Controller
     }
 
     // POST: /Tareas/Completar/5
-    // Atajo para marcar una tarea como completada con un solo clic, sin pasar
-    // por el formulario de edición. No tiene página de confirmación (a
-    // diferencia de Delete) porque se puede deshacer editando la tarea.
-    // Aun así es POST y no un enlace: modifica datos, y eso nunca por GET.
+    // Sin confirmación porque se puede deshacer editando la tarea
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Completar(int id)
@@ -184,7 +140,6 @@ public class TareasController : Controller
             return NotFound();
         }
 
-        // Solo cambiamos el estado: EF genera un UPDATE de esa columna
         tarea.Estado = EstadoTarea.Completada;
         _context.SaveChanges();
 
@@ -192,8 +147,7 @@ public class TareasController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: /Tareas/Delete/5
-    // No borra nada: solo muestra la página de "¿Seguro que quieres borrarla?".
+    // GET: /Tareas/Delete/5 (página de confirmación)
     public IActionResult Delete(int id)
     {
         var tarea = _context.Tareas.Find(id);
@@ -206,11 +160,8 @@ public class TareasController : Controller
     }
 
     // POST: /Tareas/Delete/5
-    // En C# no puede haber dos métodos con el mismo nombre y los mismos
-    // parámetros, así que este se llama DeleteConfirmed. ActionName("Delete")
-    // hace que siga respondiendo a la URL /Tareas/Delete.
-    // Borrar siempre por POST, nunca por GET: un enlace (GET) lo puede abrir
-    // un buscador o el navegador al precargar páginas y borrar datos sin querer.
+    // Tiene los mismos parámetros que el GET, por eso cambia de nombre y
+    // ActionName mantiene la URL /Tareas/Delete
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public IActionResult DeleteConfirmed(int id)
@@ -219,7 +170,7 @@ public class TareasController : Controller
         if (tarea != null)
         {
             _context.Tareas.Remove(tarea);
-            _context.SaveChanges(); // aquí se ejecuta el DELETE
+            _context.SaveChanges();
 
             TempData["Mensaje"] = $"Tarea \"{tarea.Titulo}\" borrada.";
         }
