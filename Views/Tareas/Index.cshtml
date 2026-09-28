@@ -1,0 +1,86 @@
+@* Indica qué tipo de dato recibe la vista: la lista que devuelve el
+   controlador con View(tareas...ToList()). Dentro de la vista se usa como "Model". *@
+@model List<Tarea>
+
+@{
+    ViewData["Title"] = "Tareas";
+
+    // El filtro que guardó el controlador en ViewBag. Lo pasamos a texto
+    // ("0", "1", "2") porque así vienen los valores en el desplegable.
+    var estadoSeleccionado = ((int?)ViewBag.EstadoSeleccionado)?.ToString();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Tareas</h1>
+    <a asp-action="Create" class="btn btn-primary">+ Nueva tarea</a>
+</div>
+
+@* Formulario de filtro. Usa method="get" porque solo sirve para consultar,
+   no modifica nada: al enviarlo, el navegador va a /Tareas?estado=2 y el
+   controlador recibe ese valor en su parámetro "estado". *@
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <select name="estado" class="form-select">
+            <option value="">Todos los estados</option>
+            @* GetEnumSelectList crea una opción por cada valor del enum,
+               usando el texto de [Display] ("En progreso") si lo tiene.
+               selected="true/false": Razor solo escribe el atributo si es true. *@
+            @foreach (var opcion in Html.GetEnumSelectList<EstadoTarea>())
+            {
+                <option value="@opcion.Value" selected="@(opcion.Value == estadoSeleccionado)">@opcion.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Filtrar</button>
+    </div>
+</form>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">No hay tareas que mostrar.</div>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                @* DisplayNameFor lee el [Display(Name = "...")] del modelo, así
+                   la cabecera sale "Título" con tilde sin escribirla dos veces *@
+                <th>@Html.DisplayNameFor(m => m[0].Titulo)</th>
+                <th>@Html.DisplayNameFor(m => m[0].Estado)</th>
+                <th>@Html.DisplayNameFor(m => m[0].FechaLimite)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tarea in Model)
+            {
+                // Un color de Bootstrap distinto para cada estado.
+                // Es un "switch expression": según el valor, devuelve un texto u otro.
+                var colorEstado = tarea.Estado switch
+                {
+                    EstadoTarea.Pendiente => "bg-secondary",
+                    EstadoTarea.EnProgreso => "bg-warning text-dark",
+                    _ => "bg-success" // "_" significa "cualquier otro caso" (Completada)
+                };
+
+                <tr>
+                    <td>@tarea.Titulo</td>
+                    <td>
+                        @* DisplayFor usa el [Display] del enum: "En progreso" y no "EnProgreso" *@
+                        <span class="badge @colorEstado">@Html.DisplayFor(m => tarea.Estado)</span>
+                    </td>
+                    @* ?. evita un error si no hay fecha, y ?? pone un guion en ese caso *@
+                    <td>@(tarea.FechaLimite?.ToString("dd/MM/yyyy") ?? "—")</td>
+                    <td class="text-end">
+                        @* asp-route-id añade el Id al final de la URL: /Tareas/Details/5 *@
+                        <a asp-action="Details" asp-route-id="@tarea.Id" class="btn btn-sm btn-outline-primary">Ver</a>
+                        <a asp-action="Edit" asp-route-id="@tarea.Id" class="btn btn-sm btn-outline-secondary">Editar</a>
+                        <a asp-action="Delete" asp-route-id="@tarea.Id" class="btn btn-sm btn-outline-danger">Borrar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
