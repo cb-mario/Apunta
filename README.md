@@ -1,6 +1,6 @@
-# Gestor de Tareas
+# Apunta
 
-Una app web para organizar tareas: crearlas, editarlas, marcarlas como hechas y ver de un vistazo qué tienes pendiente. La he hecho con ASP.NET Core MVC y MySQL mientras estudio 2º de DAW, sobre todo para aprender bien cómo funciona el backend en .NET.
+Apunta es una app web para organizar tareas: crearlas, editarlas, marcarlas como hechas y ver de un vistazo qué tienes pendiente. La he hecho con ASP.NET Core MVC y MySQL mientras estudio 2º de DAW, sobre todo para aprender bien cómo funciona el backend en .NET.
 
 ![Listado de tareas](docs/capturas/listado.png)
 
@@ -44,8 +44,8 @@ Necesitas el [SDK de .NET 10](https://dotnet.microsoft.com/download) y un MySQL 
 **1. Clona el repo**
 
 ```bash
-git clone https://github.com/<tu-usuario>/gestor-tareas.git
-cd gestor-tareas
+git clone https://github.com/<tu-usuario>/apunta.git
+cd apunta
 ```
 
 **2. Crea la base de datos**
