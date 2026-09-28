@@ -40,6 +40,19 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            @* Mensaje de confirmación que dejan Create, Edit y Delete en TempData.
+               Está en el layout para que salga en cualquier página a la que se
+               redirija. Al leerlo aquí, TempData lo borra: si recargas la
+               página, el mensaje ya no vuelve a aparecer.
+               El botón de cerrar (data-bs-dismiss) lo gestiona Bootstrap. *@
+            @if (TempData["Mensaje"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Mensaje"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            }
+
             @* Aquí se "incrusta" el contenido de la vista que se esté mostrando
                (Index, Create...). El resto de este archivo es común a todas. *@
             @RenderBody()

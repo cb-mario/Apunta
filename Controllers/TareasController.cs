@@ -109,6 +109,13 @@ public class TareasController : Controller
         _context.Tareas.Add(tarea);
         _context.SaveChanges(); // aquí es cuando se ejecuta el INSERT
 
+        // TempData guarda un dato que sobrevive a UNA redirección: se escribe
+        // aquí, el navegador va a /Tareas, el layout lo muestra y se borra
+        // solo. Con ViewBag no funcionaría, porque ViewBag se pierde al
+        // redirigir (la redirección es una petición nueva).
+        // El $ delante de las comillas permite meter variables entre llaves.
+        TempData["Mensaje"] = $"Tarea \"{tarea.Titulo}\" creada correctamente.";
+
         // Redirigimos en vez de devolver una vista para que, si el usuario
         // recarga la página, el navegador no reenvíe el formulario y cree
         // la tarea dos veces.
@@ -158,6 +165,7 @@ public class TareasController : Controller
         // EF detecta solo qué propiedades han cambiado y genera el UPDATE.
         _context.SaveChanges();
 
+        TempData["Mensaje"] = $"Tarea \"{tarea.Titulo}\" actualizada correctamente.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -189,6 +197,8 @@ public class TareasController : Controller
         {
             _context.Tareas.Remove(tarea);
             _context.SaveChanges(); // aquí se ejecuta el DELETE
+
+            TempData["Mensaje"] = $"Tarea \"{tarea.Titulo}\" borrada.";
         }
 
         return RedirectToAction(nameof(Index));
