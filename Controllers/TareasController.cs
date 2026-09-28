@@ -37,12 +37,34 @@ public class TareasController : Controller
             tareas = tareas.Where(t => t.Estado == estado);
         }
 
-        // Guardamos el filtro elegido para que el desplegable lo siga
-        // mostrando seleccionado después de filtrar.
-        ViewBag.EstadoSeleccionado = estado;
+        // Cuántas tareas hay de cada estado, con una sola consulta:
+        //   GroupBy  → agrupa las tareas por estado (un grupo por estado)
+        //   Select   → de cada grupo nos quedamos con su estado (g.Key) y
+        //              cuántas tareas tiene (g.Count())
+        //   ToDictionary → lo guarda como diccionario estado → cantidad
+        // EF lo traduce a: SELECT Estado, COUNT(*) FROM Tareas GROUP BY Estado
+        // (la otra opción sería hacer tres Count(), uno por estado: más fácil
+        // de leer, pero son tres consultas a la base de datos en vez de una)
+        var contadores = _context.Tareas
+            .GroupBy(t => t.Estado)
+            .Select(g => new { Estado = g.Key, Cantidad = g.Count() })
+            .ToDictionary(x => x.Estado, x => x.Cantidad);
 
-        // Las más recientes primero.
-        return View(tareas.OrderByDescending(t => t.FechaCreacion).ToList());
+        var viewModel = new TareasIndexViewModel
+        {
+            // Las más recientes primero
+            Tareas = tareas.OrderByDescending(t => t.FechaCreacion).ToList(),
+            // Guardamos el filtro para que el desplegable lo siga mostrando
+            // seleccionado después de filtrar
+            EstadoSeleccionado = estado,
+            // GetValueOrDefault devuelve 0 si un estado no tiene ninguna tarea
+            // (en ese caso no aparece en el diccionario)
+            TotalPendientes = contadores.GetValueOrDefault(EstadoTarea.Pendiente),
+            TotalEnProgreso = contadores.GetValueOrDefault(EstadoTarea.EnProgreso),
+            TotalCompletadas = contadores.GetValueOrDefault(EstadoTarea.Completada)
+        };
+
+        return View(viewModel);
     }
 
     // GET: /Tareas/Details/5
