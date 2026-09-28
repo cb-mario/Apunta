@@ -44,7 +44,7 @@ Necesitas el [SDK de .NET 10](https://dotnet.microsoft.com/download) y un MySQL 
 **1. Clona el repo**
 
 ```bash
-git clone https://github.com/<tu-usuario>/apunta.git
+git clone https://github.com/cb-mario/Apunta.git
 cd apunta
 ```
 
